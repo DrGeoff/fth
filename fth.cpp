@@ -20,12 +20,34 @@ void number(Stack& stack, ReturnStack& returnStack, const std::string& token)
 void emit(Stack& stack, ReturnStack& returnStack)
 {
     std::cout << static_cast<char>(stack.back());
+    // TODO: Does emit automatically remove data from the stack?
     stack.pop_back();
 }
 
 void cr(Stack& stack, ReturnStack& returnStack)
 {
     std::cout << std::endl;
+}
+
+void include(Stack& stack, ReturnStack& returnStack)
+{
+    // TODO
+}
+
+
+void add(Stack& stack, ReturnStack& returnStack)
+{
+    if (stack.size() < 2)
+    {
+        throw std::underflow_error("Tried to add but stack size < 2");
+    }
+
+    const int value = stack.back() + stack.at(stack.size()-2);
+    // TODO: Does add automatically remove data from the stack?
+    stack.pop_back();
+    stack.pop_back();
+    // TODO: Should this go onto the returnStack?  Who/When moves from the return stack onto the stack?
+    stack.push_back(value);
 }
 
 struct NewCommandTokens
@@ -79,13 +101,14 @@ void addNewCommandTokensToDictionary(const std::unique_ptr<NewCommandTokens>& pN
 
 void populateDictionary(Dictionary& dictionary)
 {
+    dictionary.emplace(std::string{"+"}, &add);
     dictionary.emplace(std::string{"EMIT"},&emit);
     dictionary.emplace(std::string{"CR"},&cr);
 }
 
 void processImmediateMode(Dictionary& dictionary,Stack& stack, ReturnStack& returnStack, const std::string& token)
 {
-    std::cout << "Token: " << token << std::endl;
+    //std::cout << "Token: " << token << std::endl;
     const auto& dictionaryIt = dictionary.find(token);
     if (dictionaryIt == dictionary.end())
     {
@@ -105,20 +128,20 @@ int main(int argc, char* argv[])
     populateDictionary(dictionary);
 
     bool immediateMode = true;
-    const std::string program = R"(: 2STAR 42 EMIT 42 EMIT CR ;
+    const std::string program = R"(: 2STAR 40 2 + EMIT 42 EMIT CR ;
     2STAR)";
     std::istringstream iss(program);
     std::string line;
     while (std::getline(iss, line))
     {
-        std::cout << "Line: " << line << std::endl;
+        //std::cout << "Line: " << line << std::endl;
         std::istringstream issline(line);
         std::string token;
         std::unique_ptr<NewCommandTokens> pNewCommandTokens;
         while (std::getline(issline, token, ' '))
         {
             trim(token);
-            std::cout << "Parsing Token: " << token << std::endl;
+            //std::cout << "Parsing Token: " << token << std::endl;
             if (token.empty())
             {
                 continue;
