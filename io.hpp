@@ -4,21 +4,21 @@
 #include <fstream>
 #include "process.hpp"
 
-inline void dot(Stack& stack, ReturnStack& returnStack, Dictionary& dictionary)
+inline void dot(Stack& stack, ReturnStack& returnStack, Dictionary& dictionary, std::ostream& os)
 {
-    std::cout << stack.back();
+    os << stack.back();
     stack.pop_back();
 }
 
-inline void emit(Stack& stack, ReturnStack& returnStack, Dictionary& dictionary)
+inline void emit(Stack& stack, ReturnStack& returnStack, Dictionary& dictionary, std::ostream& os)
 {
-    std::cout << static_cast<char>(stack.back());
+    os << static_cast<char>(stack.back());
     stack.pop_back();
 }
 
-inline void cr(Stack& stack, ReturnStack& returnStack, Dictionary& dictionary)
+inline void cr(Stack& stack, ReturnStack& returnStack, Dictionary& dictionary, std::ostream& os)
 {
-    std::cout << std::endl;
+    os << std::endl;
 }
 
 

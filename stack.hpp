@@ -4,14 +4,14 @@
 #include <iostream>
 
 /// Non-destructively display the stack
-inline void dotS(Stack& stack, ReturnStack& returnStack, Dictionary& dictionary)
+inline void dotS(Stack& stack, ReturnStack& returnStack, Dictionary& dictionary, std::ostream& os)
 {
-    std::cout << "<" << stack.size() << ">";
+    os << "<" << stack.size() << ">";
     for(const auto& element : stack|std::ranges::views::reverse)
     {
-        std::cout << " " << element; 
+        os << " " << element; 
     }
-    std::cout << std::endl;
+    os << std::endl;
 }
 
 /// Discard the top stack item
@@ -21,11 +21,11 @@ inline void drop(Stack& stack, ReturnStack& returnStack, Dictionary& dictionary)
 }
 
 
-inline void dumpDictionary(Stack& stack, ReturnStack& returnStack, Dictionary& dictionary)
+inline void dumpDictionary(Stack& stack, ReturnStack& returnStack, Dictionary& dictionary, std::ostream& os)
 {
     for (const auto& [key,value] : dictionary)
     {
-        std::cout << key << std::endl;
+        os << key << std::endl;
     }
 }
 
