@@ -23,7 +23,6 @@ inline void drop(Stack& stack, ReturnStack& returnStack, Dictionary& dictionary)
 
 inline void dumpDictionary(Stack& stack, ReturnStack& returnStack, Dictionary& dictionary)
 {
-    std::cout << "DUMP DICTIONARY\n";
     for (const auto& [key,value] : dictionary)
     {
         std::cout << key << std::endl;

@@ -3,6 +3,7 @@
 #include "io.hpp"
 #include "math.hpp"
 #include <sstream>
+#include <iostream>
 #include <stdexcept>
 
 
@@ -30,9 +31,10 @@ int main(int argc, char* argv[])
     const std::string program = R"(: 2STAR 40 2 + EMIT 42 EMIT CR ;
     2STAR)";
     */
-    
+    /*
     const std::string program = R"([CHAR] 2star.fth INCLUDE
     )";
+    */
     //const std::string program = R"(." 2star.fth " INCLUDE")";
      
     /*
@@ -45,7 +47,7 @@ int main(int argc, char* argv[])
     STAR)";
     */
 
-    std::istringstream iss(program);
-    process(iss, stack, returnStack, dictionary);
+    //std::istringstream iss(program);
+    process(std::cin, stack, returnStack, dictionary);
     return 0;
 }
