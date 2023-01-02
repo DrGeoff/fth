@@ -4,7 +4,7 @@
 #include <iostream>
 
 /// Non-destructively display the stack
-void dotS(Stack& stack, ReturnStack& returnStack, Dictionary& dictionary)
+inline void dotS(Stack& stack, ReturnStack& returnStack, Dictionary& dictionary)
 {
     std::cout << "<" << stack.size() << ">";
     for(const auto& element : stack|std::ranges::views::reverse)
@@ -18,5 +18,15 @@ void dotS(Stack& stack, ReturnStack& returnStack, Dictionary& dictionary)
 inline void drop(Stack& stack, ReturnStack& returnStack, Dictionary& dictionary)
 {
     stack.pop_back();
+}
+
+
+inline void dumpDictionary(Stack& stack, ReturnStack& returnStack, Dictionary& dictionary)
+{
+    std::cout << "DUMP DICTIONARY\n";
+    for (const auto& [key,value] : dictionary)
+    {
+        std::cout << key << std::endl;
+    }
 }
 
