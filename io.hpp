@@ -22,3 +22,5 @@ inline void cr(Stack& stack, ReturnStack& returnStack, Dictionary& dictionary)
 }
 
 
+void include(Stack& stack, ReturnStack& returnStack, Dictionary& dictionary);
+

@@ -1,32 +1,10 @@
 #include "process.hpp"
+#include "stack.hpp"
 #include "io.hpp"
+#include "math.hpp"
 #include <sstream>
+#include <stdexcept>
 
-
-void add(Stack& stack, ReturnStack& returnStack, Dictionary& dictionary)
-{
-    if (stack.size() < 2)
-    {
-        throw std::underflow_error("Tried to add but stack size < 2");
-    }
-
-    const int value = stack.back() + stack.at(stack.size()-2);
-    // TODO: Does add automatically remove data from the stack?
-    stack.pop_back();
-    stack.pop_back();
-    // TODO: Should this go onto the returnStack?  Who/When moves from the return stack onto the stack?
-    stack.push_back(value);
-}
-
-void dotS(Stack& stack, ReturnStack& returnStack, Dictionary& dictionary)
-{
-    std::cout << "<" << stack.size() << ">";
-    for(const auto& element : stack)
-    {
-        std::cout << " " << element; 
-    }
-    std::cout << std::endl;
-}
 
 void populateDictionary(Dictionary& dictionary)
 {
@@ -36,6 +14,7 @@ void populateDictionary(Dictionary& dictionary)
     dictionary.emplace(std::string{"EMIT"}, &emit);
     dictionary.emplace(std::string{"CR"}, &cr);
     dictionary.emplace(std::string{".S"}, &dotS);
+    dictionary.emplace(std::string{"DROP"}, &drop);
 }
 
 int main(int argc, char* argv[])
@@ -56,7 +35,7 @@ int main(int argc, char* argv[])
     STAR)";
     */
 
-    const std::string program = R"(: STAR ." *star astar* " .S EMIT EMIT EMIT EMIT EMIT EMIT EMIT EMIT EMIT EMIT EMIT EMIT CR ;
+    const std::string program = R"(: STAR ." *star astar* " .S DROP EMIT EMIT EMIT EMIT EMIT EMIT EMIT EMIT EMIT EMIT EMIT EMIT EMIT CR ;
     STAR)";
 
     std::istringstream iss(program);

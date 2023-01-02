@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <sstream>
+#include <ranges>
 
 struct NewCommandTokens
 {
@@ -32,23 +33,13 @@ void number(Stack& stack, ReturnStack& returnStack, Dictionary& dictionary, cons
 
 void charToStack(Stack& stack, ReturnStack& returnStack, Dictionary& dictionary, const std::string& token)
 {
-    for (const char& toke : token)
+    // Represent strings on the stack by "length c1 c2 c3 ... cn"
+    // That is, not zero terminated but size prefixed.
+    for (const char& toke : token|std::ranges::views::reverse)
     {
         stack.push_back(static_cast<int>(toke));
     }
-}
-
-void include(Stack& stack, ReturnStack& returnStack, Dictionary& dictionary)
-{
-    if (stack.size() < 1)
-    {
-        throw std::underflow_error("Tried to include but stack size < 1");
-    }
-
-    //TODO: convert int stack into a filename to pass into fin.  ?zero sentinal
-    //std::ifstream fin{stack.back()};
-    stack.pop_back();
-    //process(fin, dictionary, stack, returnStack);
+    stack.push_back(token.size());
 }
 
 void addNewCommandTokensToDictionary(const std::unique_ptr<NewCommandTokens>& pNewCommandTokens, Dictionary& dictionary)
