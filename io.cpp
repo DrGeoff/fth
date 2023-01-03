@@ -1,4 +1,8 @@
 #include "io.hpp"
+#include "process.hpp"
+
+#include <string>
+#include <fstream>
 #include <stdexcept>
 
 std::string readStringFromStack(Stack& stack)

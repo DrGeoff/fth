@@ -1,8 +1,8 @@
 #pragma once
 
-#include <iostream>
-#include <fstream>
-#include "process.hpp"
+#include "stack.hpp"
+#include "dictionary.hpp"
+#include <ostream>
 
 inline void dot(Stack& stack, ReturnStack& returnStack, Dictionary& dictionary, std::ostream& os)
 {
