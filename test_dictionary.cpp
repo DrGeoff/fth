@@ -1,15 +1,18 @@
+//#PKG-CONFIG=gtest_main
+
 #include "dictionary.hpp"
 #include <iostream>
 
-void test_dictionary()
+#include <gtest/gtest.h>
+
+namespace
+{
+
+TEST(dictionary, basic)
 {
     Dictionary dictionary;
     dictionary.populateDictionary(std::cout);
 }
 
-int main(int argc, char* argv[])
-{
-    test_dictionary();
-    return 0;
 }
 

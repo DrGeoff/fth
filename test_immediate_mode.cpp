@@ -1,10 +1,12 @@
+//#PKG-CONFIG=gtest_main
+
 #include "process.hpp"
 #include "stack.hpp"
 #include "io.hpp"
 #include "math.hpp"
 #include <sstream>
 #include <iostream>
-#include <cassert>
+#include <gtest/gtest.h>
 
 std::string harness(const std::string& program)
 {
@@ -20,17 +22,16 @@ std::string harness(const std::string& program)
     return oss.str();
 }
 
-void test_immediate_mode()
+
+namespace
+{
+
+TEST(immediate_mode, twostar)
 {
     const std::string program = R"(40 2 + EMIT 42 EMIT CR)";
     const std::string output = harness(program);
-    assert(output == "**\n");
+    EXPECT_EQ(output,"**\n");
 }
 
-
-int main(int argc, char* argv[])
-{
-    test_immediate_mode();
-    return 0;
 }
 
