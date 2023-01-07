@@ -8,6 +8,10 @@
 #include <iostream>
 #include <gtest/gtest.h>
 
+
+namespace
+{
+
 std::string harness(const std::string& program)
 {
     Stack stack;
@@ -21,10 +25,6 @@ std::string harness(const std::string& program)
     process(iss, stack, returnStack, dictionary);
     return oss.str();
 }
-
-
-namespace
-{
 
 TEST(immediate_mode, twostar)
 {

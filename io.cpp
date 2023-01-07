@@ -5,6 +5,8 @@
 #include <fstream>
 #include <stdexcept>
 
+namespace {
+
 std::string readStringFromStack(Stack& stack)
 {
     std::string str{};
@@ -17,6 +19,8 @@ std::string readStringFromStack(Stack& stack)
     }
     return str;
 }
+
+} // namespace
 
 void include(Stack& stack, ReturnStack& returnStack, Dictionary& dictionary)
 {
