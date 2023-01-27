@@ -14,10 +14,10 @@ int main(int argc, char* argv[])
     Stack stack;
     ReturnStack returnStack;
     Dictionary dictionary;
-    //populateDictionary(dictionary, std::cout);
 
-    std::ofstream fout{"out.txt"};
-    dictionary.populateDictionary(fout);
+    dictionary.populateDictionary(std::cout);
+    //std::ofstream fout{"out.txt"};
+    //dictionary.populateDictionary(fout);
 
         
     /*
