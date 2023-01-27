@@ -1,10 +1,10 @@
 #include "process.hpp"
 #include "string_utils.hpp"
+#include "std_string.hpp"
 ///#include "stack.hpp"   // TODO: remove this. only for debugging
 
 #include <memory>
 #include <sstream>
-#include <ranges>
 #include <iostream>
 #include <cassert>
 
@@ -43,16 +43,6 @@ void number(Stack& stack, ReturnStack& returnStack, Dictionary& dictionary, cons
     stack.push_back(value);
 }
 
-void charToStack(Stack& stack, ReturnStack& returnStack, Dictionary& dictionary, const std::string& token)
-{
-    // Represent strings on the stack by "length c1 c2 c3 ... cn"
-    // That is, not zero terminated but size prefixed.
-    for (const char& toke : token|std::ranges::views::reverse)
-    {
-        stack.push_back(static_cast<int>(toke));
-    }
-    stack.push_back(token.size());
-}
 
 void addNewCommandTokensToDictionary(const std::unique_ptr<NewCommandTokens>& pNewCommandTokens, Dictionary& dictionary)
 {
@@ -98,13 +88,13 @@ void addNewCommandTokensToDictionary(const std::unique_ptr<NewCommandTokens>& pN
         {
             if (!strToken.empty())
             {
-                auto deferred = [strToken](Stack& stack, ReturnStack& returnStack, Dictionary& dictionary){charToStack(stack, returnStack, dictionary, strToken);};
+                auto deferred = [strToken](Stack& stack, ReturnStack& returnStack, Dictionary& dictionary){stringToStack(stack, returnStack, dictionary, strToken);};
                 newCommandFuncs.push_back(deferred);
                 strToken = "";
             }
             else if (characterMode)
             {
-                auto deferred = [token](Stack& stack, ReturnStack& returnStack, Dictionary& dictionary){charToStack(stack, returnStack, dictionary, token);};
+                auto deferred = [token](Stack& stack, ReturnStack& returnStack, Dictionary& dictionary){stringToStack(stack, returnStack, dictionary, token);};
                 newCommandFuncs.push_back(deferred);
                 characterMode = false;
             }

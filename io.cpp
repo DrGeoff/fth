@@ -1,4 +1,5 @@
 #include "io.hpp"
+#include "std_string.hpp"
 #include "process.hpp"
 
 #include <string>
@@ -6,19 +7,6 @@
 #include <stdexcept>
 
 namespace {
-
-std::string readStringFromStack(Stack& stack)
-{
-    std::string str{};
-    const int length = stack.back();
-    stack.pop_back();
-    for (int index = 0; index != length; ++index)
-    {
-        str += stack.back();
-        stack.pop_back();
-    }
-    return str;
-}
 
 } // namespace
 
@@ -29,7 +17,7 @@ void include(Stack& stack, ReturnStack& returnStack, Dictionary& dictionary)
         throw std::underflow_error("Tried to include but stack size < 1");
     }
 
-    const std::string filename = readStringFromStack(stack);
+    const std::string filename = stackToString(stack, returnStack, dictionary);
     std::ifstream fin{filename};
     process(fin, stack, returnStack, dictionary);
 }
