@@ -1,5 +1,6 @@
 #include "std_string.hpp"
 #include <ranges>
+#include <cassert>
 
 void stringToStack(Stack& stack, ReturnStack& returnStack, Dictionary& dictionary, const std::string& cstr)
 {
@@ -14,11 +15,14 @@ void stringToStack(Stack& stack, ReturnStack& returnStack, Dictionary& dictionar
 
 std::string stackToString(Stack& stack, ReturnStack& returnStack, Dictionary& dictionary)
 {
-    const int strSize = stack.back();
+    assert(stack.size() > 1u);
+    const unsigned int strSize = stack.back();
+    assert(stack.size() >= strSize);
     stack.pop_back();
+
     std::string ret;
     ret.reserve(strSize);
-    for (int index=0; index != strSize; ++index)
+    for (unsigned int index=0; index != strSize; ++index)
     {
         ret.push_back(stack.back());
         stack.pop_back();
