@@ -1,6 +1,7 @@
 #include "process.hpp"
 #include "string_utils.hpp"
 #include "std_string.hpp"
+#include "fth_string.hpp"
 ///#include "stack.hpp"   // TODO: remove this. only for debugging
 
 #include <memory>
@@ -34,14 +35,6 @@ struct NewCommandTokens
         }
     }
 };
-
-
-
-void number(Stack& stack, ReturnStack& returnStack, Dictionary& dictionary, const std::string& token)
-{
-    const int value = std::stoi(token);
-    stack.push_back(value);
-}
 
 
 void addNewCommandTokensToDictionary(const std::unique_ptr<NewCommandTokens>& pNewCommandTokens, Dictionary& dictionary)
@@ -103,7 +96,7 @@ void addNewCommandTokensToDictionary(const std::unique_ptr<NewCommandTokens>& pN
             }
             else
             {
-                auto deferredNumber = [token](Stack& stack, ReturnStack& returnStack, Dictionary& dictionary){number(stack, returnStack, dictionary, token);};
+                auto deferredNumber = [token](Stack& stack, ReturnStack& returnStack, Dictionary& dictionary){stringToStack(stack, returnStack, dictionary, token); number(stack, returnStack, dictionary);};
                 newCommandFuncs.push_back(deferredNumber);
             }
         }
@@ -130,7 +123,8 @@ void processImmediateMode(Stack& stack, ReturnStack& returnStack, Dictionary& di
     const auto& dictionaryIt = dictionary.find(token);
     if (dictionaryIt == dictionary.end())
     {
-        number(stack, returnStack, dictionary, token);
+        stringToStack(stack, returnStack, dictionary, token);
+        number(stack, returnStack, dictionary);
     }
     else
     {

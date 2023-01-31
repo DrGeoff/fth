@@ -3,11 +3,14 @@
 #include "math.hpp"
 #include "stack_funcs.hpp"
 #include "std_string.hpp"
+#include "fth_string.hpp"
 #include <stdexcept>
 
 
 void Dictionary::populateDictionary(std::ostream& os)
 {
+    this->emplace(std::string{"NUMBER"}, &number);
+
     this->emplace(std::string{"+"}, &add);
     this->emplace(std::string{"."}, [&os](Stack& stack, ReturnStack& returnStack, Dictionary& dictionary) mutable {dot(stack, returnStack, dictionary, os);});
 
