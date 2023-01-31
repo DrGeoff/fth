@@ -33,5 +33,14 @@ TEST(immediate_mode, twostar)
     EXPECT_EQ(output,"**\n");
 }
 
+TEST(immediate_mode, stringquote)
+{
+    const std::string program = R"(." one " .S)";
+    const std::string output = harness(program);
+    EXPECT_EQ(output,"<4> 3 111 110 101\n");
+}
+
+// TODO test [CHAR]
+
 }
 

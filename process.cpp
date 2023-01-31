@@ -77,7 +77,10 @@ void addNewCommandTokensToDictionary(const std::unique_ptr<NewCommandTokens>& pN
             }
             else
             {
-                strToken += " ";
+                if (!strToken.empty())
+                {
+                    strToken += " ";
+                }
                 strToken += token;
                 continue;
             }
