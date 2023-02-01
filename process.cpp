@@ -39,6 +39,7 @@ struct NewCommandTokens
 };
 
 
+// TODO.  Rewrite, read the command tokens from the stack 
 void addNewCommandTokensToDictionary(const std::unique_ptr<NewCommandTokens>& pNewCommandTokens, Dictionary& dictionary)
 {
     bool characterMode{false};
@@ -134,6 +135,7 @@ void processImmediateMode(Stack& stack, ReturnStack& returnStack, Dictionary& di
     }
 }
 
+// TODO.  Rewrite, read the name and the command tokens from the stack 
 void executeImmediateTokens(std::unique_ptr<NewCommandTokens>& pImmediateTokens, Stack& stack, ReturnStack& returnStack, Dictionary& dictionary)
 {
     if (!pImmediateTokens || pImmediateTokens->tokens.empty())
@@ -154,6 +156,8 @@ void executeImmediateTokens(std::unique_ptr<NewCommandTokens>& pImmediateTokens,
     dictionary.erase(dictionaryIt);
 }
 
+// TODO.  Rewrite, put the command tokens onto the stack 
+// TODO. Use a state machine for the rewrite
 void process(std::istream& iss, Stack& stack, ReturnStack& returnStack, Dictionary& dictionary)
 {
     static int immediateCounter{0};
@@ -165,7 +169,6 @@ void process(std::istream& iss, Stack& stack, ReturnStack& returnStack, Dictiona
         std::istringstream issline(line);
         std::string token;
         std::unique_ptr<NewCommandTokens> pNewCommandTokens{};
-        std::unique_ptr<NewCommandTokens> pImmediateTokens{};
         while (std::getline(issline, token, ' '))
         {
             trim(token);
@@ -176,8 +179,8 @@ void process(std::istream& iss, Stack& stack, ReturnStack& returnStack, Dictiona
             }
             if (token == ":") 
             {
-                executeImmediateTokens(pImmediateTokens, stack, returnStack, dictionary);
-                pImmediateTokens = std::make_unique<NewCommandTokens>();
+                executeImmediateTokens(pNewCommandTokens, stack, returnStack, dictionary);
+                pNewCommandTokens = std::make_unique<NewCommandTokens>();
                 pNewCommandTokens = std::make_unique<NewCommandTokens>();
                 immediateMode = false; 
             }
@@ -193,23 +196,19 @@ void process(std::istream& iss, Stack& stack, ReturnStack& returnStack, Dictiona
             {
                 if (immediateMode)
                 {
-                    if (!pImmediateTokens)
+                    if (!pNewCommandTokens)
                     {
-                        pImmediateTokens = std::make_unique<NewCommandTokens>();
+                        pNewCommandTokens = std::make_unique<NewCommandTokens>();
                     }
-                    if (pImmediateTokens->name.empty())
+                    if (pNewCommandTokens->name.empty())
                     {                        
-                        pImmediateTokens->add("immediate"+std::to_string(++immediateCounter));
+                        pNewCommandTokens->add("immediate"+std::to_string(++immediateCounter));
                     }
-                    pImmediateTokens->add(token);
                 }
-                else
-                {
-                    pNewCommandTokens->add(token);
-                }
+                pNewCommandTokens->add(token);
             }
         }
-        executeImmediateTokens(pImmediateTokens, stack, returnStack, dictionary);
+        executeImmediateTokens(pNewCommandTokens, stack, returnStack, dictionary);
     }
 }
 
