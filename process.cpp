@@ -3,10 +3,10 @@
 #include "std_string.hpp"
 #include "fth_string.hpp"
 ///#include "stack.hpp"   // TODO: remove this. only for debugging
+//#include <iostream>
 
 #include <memory>
 #include <sstream>
-#include <iostream>
 #include <cassert>
 
 struct NewCommandTokens
@@ -26,6 +26,7 @@ struct NewCommandTokens
         }
     }
 
+    /* //only used when debugging
     void dump() const
     {
         std::cout << "CommandTokens. name=" << name << " tokens=";
@@ -34,6 +35,7 @@ struct NewCommandTokens
             std::cout << " " << token;
         }
     }
+    */
 };
 
 
@@ -134,20 +136,22 @@ void processImmediateMode(Stack& stack, ReturnStack& returnStack, Dictionary& di
 
 void executeImmediateTokens(std::unique_ptr<NewCommandTokens>& pImmediateTokens, Stack& stack, ReturnStack& returnStack, Dictionary& dictionary)
 {
-    if (pImmediateTokens && !pImmediateTokens->tokens.empty())
+    if (!pImmediateTokens || pImmediateTokens->tokens.empty())
     {
-        /*
-        std::cout << "executeImmediateTokens. name=" << pImmediateTokens->name << " tokens=";
-        pImmediateTokens->dump();
-        std::cout << std::endl;            
-        dumpDictionary(stack, returnStack, dictionary); // TODO: REMOVE
-        */
-        addNewCommandTokensToDictionary(pImmediateTokens, dictionary);
-        const auto& dictionaryIt = dictionary.find(pImmediateTokens->name);
-        pImmediateTokens = std::make_unique<NewCommandTokens>();
-        dictionaryIt->second(stack, returnStack, dictionary);
-        dictionary.erase(dictionaryIt);
+        // Nothing to do.  Probably a bug somewhere so let's get noisy
+        throw std::runtime_error("executeImmediateTokens called with no tokens.  That seems a little fishy.");
     }
+    /*
+    std::cout << "executeImmediateTokens. name=" << pImmediateTokens->name << " tokens=";
+    pImmediateTokens->dump();
+    std::cout << std::endl;            
+    dumpDictionary(stack, returnStack, dictionary); // TODO: REMOVE
+    */
+    addNewCommandTokensToDictionary(pImmediateTokens, dictionary);
+    const auto& dictionaryIt = dictionary.find(pImmediateTokens->name);
+    pImmediateTokens = std::make_unique<NewCommandTokens>();
+    dictionaryIt->second(stack, returnStack, dictionary);
+    dictionary.erase(dictionaryIt);
 }
 
 void process(std::istream& iss, Stack& stack, ReturnStack& returnStack, Dictionary& dictionary)
