@@ -40,7 +40,14 @@ TEST(immediate_mode, stringquote)
     EXPECT_EQ(output,"<4> 3 111 110 101\n");
 }
 
-// TODO test [CHAR]
+TEST(immediate_mode, charword)
+{
+    const std::string program = R"([CHAR] hello
+.S
+)";
+    const std::string output = harness(program);
+    EXPECT_EQ(output,"<6> 5 104 101 108 108 111\n");
+}
 
 }
 
