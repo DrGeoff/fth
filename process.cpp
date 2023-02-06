@@ -181,7 +181,6 @@ void process(std::istream& iss, Stack& stack, ReturnStack& returnStack, Dictiona
             {
                 executeImmediateTokens(pNewCommandTokens, stack, returnStack, dictionary);
                 pNewCommandTokens = std::make_unique<NewCommandTokens>();
-                pNewCommandTokens = std::make_unique<NewCommandTokens>();
                 immediateMode = false; 
             }
             else if (token == ";") 
