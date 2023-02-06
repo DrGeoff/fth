@@ -26,6 +26,13 @@ std::string harness(const std::string& program)
     return oss.str();
 }
 
+TEST(immediate_mode, addition)
+{
+    const std::string program = R"(40 2 + .)";
+    const std::string output = harness(program);
+    EXPECT_EQ(output,"42");
+}
+
 TEST(immediate_mode, twostar)
 {
     const std::string program = R"(40 2 + EMIT 42 EMIT CR)";
