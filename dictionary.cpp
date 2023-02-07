@@ -1,3 +1,4 @@
+#include "process.hpp"
 #include "dictionary.hpp"
 #include "io.hpp"
 #include "math.hpp"
@@ -10,6 +11,8 @@
 void Dictionary::populateDictionary(std::ostream& os)
 {
     this->emplace(std::string{"NUMBER"}, &number);
+    this->emplace(std::string{"CREATEWORD"}, &addNewCommandTokensToDictionary);
+
 
     this->emplace(std::string{"+"}, &add);
     this->emplace(std::string{"."}, [&os](Stack& stack, ReturnStack& returnStack, Dictionary& dictionary) mutable {dot(stack, returnStack, dictionary, os);});
