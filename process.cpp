@@ -2,9 +2,10 @@
 #include "string_utils.hpp"
 #include "std_string.hpp"
 #include "fth_string.hpp"
-//#include "stack_funcs.hpp"   // TODO: remove this. only for debugging
-//#include <iostream>// TODO: remove this. only for debugging
+#include "stack_funcs.hpp"   // TODO: remove this. only for debugging
+#include <iostream>// TODO: remove this. only for debugging
 
+#include <ranges>
 #include <memory>
 #include <sstream>
 #include <cassert>
@@ -38,23 +39,29 @@ struct NewCommandTokens
     */
 };
 
+void addNewCommandTokensToStack(const std::unique_ptr<NewCommandTokens>& pNewCommandTokens, Stack& stack, ReturnStack& returnStack, Dictionary& dictionary)
+{
+    stringToStack(stack, returnStack, dictionary, pNewCommandTokens->name);
+    for (const std::string& token : pNewCommandTokens->tokens|std::ranges::views::reverse)
+    {
+        stringToStack(stack, returnStack, dictionary, token);
+    }
+    stack.push_back(1+pNewCommandTokens->tokens.size()); 
+}
 
-// TODO.  Rewrite, read the command tokens from the stack 
-void addNewCommandTokensToDictionary(const std::unique_ptr<NewCommandTokens>& pNewCommandTokens, Stack& stack, ReturnStack& returnStack, Dictionary& dictionary)
+void addNewCommandTokensToDictionary(Stack& stack, ReturnStack& returnStack, Dictionary& dictionary)
 {
     bool characterMode{false};
     bool stringMode{false};
     std::string strToken{};
     std::vector<std::function<FthFunc>> newCommandFuncs;
 
-    /*std::cout << "\naddNewCommandTokensToDictionary called.  Tokens to add are:\n";
-    pNewCommandTokens->dump();
-    std::cout << "\nCurrent Dictionary is\n";
-    dumpDictionary(stack, returnStack, dictionary, std::cout); // TODO: REMOVE
-    std::cout << std::endl;*/
-
-    for (const std::string& token : pNewCommandTokens->tokens)
+    const int numTokens = stack.back()-1;
+    stack.pop_back();
+    for (int index = 0; index != numTokens; ++index)
     {
+        const std::string& token = stackToString(stack, returnStack, dictionary);
+        //std::cout << "Working on token = " << token << std::endl;
         if (token=="[CHAR]")
         {
             characterMode = true;
@@ -120,7 +127,15 @@ void addNewCommandTokensToDictionary(const std::unique_ptr<NewCommandTokens>& pN
         }
     };
 
-    dictionary.emplace(pNewCommandTokens->name, implementation);
+    const std::string& name = stackToString(stack, returnStack, dictionary);
+    //std::cout << "Created new command " << name << std::endl;
+    dictionary.emplace(name, implementation);
+}
+
+void addNewCommandTokensToDictionary(const std::unique_ptr<NewCommandTokens>& pNewCommandTokens, Stack& stack, ReturnStack& returnStack, Dictionary& dictionary)
+{
+    addNewCommandTokensToStack(pNewCommandTokens, stack, returnStack, dictionary);
+    addNewCommandTokensToDictionary(stack, returnStack, dictionary);
 }
 
 void processImmediateMode(Stack& stack, ReturnStack& returnStack, Dictionary& dictionary, const std::string& token)
@@ -150,7 +165,7 @@ void executeImmediateTokens(std::unique_ptr<NewCommandTokens>& pImmediateTokens,
     std::cout << "executeImmediateTokens. name=" << pImmediateTokens->name << " tokens=";
     pImmediateTokens->dump();
     std::cout << std::endl;            
-    dumpDictionary(stack, returnStack, dictionary); // TODO: REMOVE
+    dumpDictionary(stack, returnStack, dictionary, std::cout); // TODO: REMOVE
     */
     addNewCommandTokensToDictionary(pImmediateTokens, stack, returnStack, dictionary);
     const auto& dictionaryIt = dictionary.find(pImmediateTokens->name);
@@ -178,7 +193,6 @@ std::ostream& operator << (std::ostream& os, const ProcessState& obj)
 
 void process(std::istream& iss, Stack& stack, ReturnStack& returnStack, Dictionary& dictionary)
 {
-    // States: StartImmediateMode, ImmediateMode, CompileMode
     static int immediateCounter{0};
     ProcessState state{ProcessState::StartImmediateMode};
 
@@ -208,9 +222,9 @@ void process(std::istream& iss, Stack& stack, ReturnStack& returnStack, Dictiona
             }
             else if (token == ";") 
             { 
-                //dumpDictionary(stack, returnStack, dictionary); // TODO: REMOVE
+                //dumpDictionary(stack, returnStack, dictionary, std::cout); // TODO: REMOVE
                 addNewCommandTokensToDictionary(pNewCommandTokens, stack, returnStack, dictionary);
-                //dumpDictionary(stack, returnStack, dictionary); // TODO: REMOVE
+                //dumpDictionary(stack, returnStack, dictionary, std::cout); // TODO: REMOVE
                 state = ProcessState::StartImmediateMode;
             }
             else
