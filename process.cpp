@@ -153,7 +153,20 @@ void processImmediateMode(Stack& stack, ReturnStack& returnStack, Dictionary& di
     }
 }
 
-// TODO.  Rewrite, read the name and the command tokens from the stack 
+void executeImmediateTokens(Stack& stack, ReturnStack& returnStack, Dictionary& dictionary)
+{
+    /*
+    dumpDictionary(stack, returnStack, dictionary, std::cout); // TODO: REMOVE
+    */
+    const std::string name = stackToString(stack, returnStack, dictionary);   
+    addNewCommandTokensToDictionary(stack, returnStack, dictionary);
+    // TODO: would be better if the name was at the top of the stack here rather than earlier
+    const auto& dictionaryIt = dictionary.find(name);
+    assert(dictionaryIt!=dictionary.end());
+    dictionaryIt->second(stack, returnStack, dictionary);
+    dictionary.erase(dictionaryIt);
+}
+
 void executeImmediateTokens(std::unique_ptr<NewCommandTokens>& pImmediateTokens, Stack& stack, ReturnStack& returnStack, Dictionary& dictionary)
 {
     if (!pImmediateTokens || pImmediateTokens->tokens.empty())
@@ -167,11 +180,11 @@ void executeImmediateTokens(std::unique_ptr<NewCommandTokens>& pImmediateTokens,
     std::cout << std::endl;            
     dumpDictionary(stack, returnStack, dictionary, std::cout); // TODO: REMOVE
     */
-    addNewCommandTokensToDictionary(pImmediateTokens, stack, returnStack, dictionary);
-    const auto& dictionaryIt = dictionary.find(pImmediateTokens->name);
-    assert(dictionaryIt!=dictionary.end());
-    dictionaryIt->second(stack, returnStack, dictionary);
-    dictionary.erase(dictionaryIt);
+
+    addNewCommandTokensToStack(pImmediateTokens, stack, returnStack, dictionary);
+    // TODO: need to get the nth token (i.e., the name) and duplicate it.  But cheat for now.
+    stringToStack(stack, returnStack, dictionary, pImmediateTokens->name);
+    executeImmediateTokens(stack, returnStack, dictionary);
 }
 
 // TODO.  Rewrite, put the command tokens onto the stack 
