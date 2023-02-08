@@ -138,21 +138,6 @@ void addNewCommandTokensToDictionary(const std::unique_ptr<NewCommandTokens>& pN
     addNewCommandTokensToDictionary(stack, returnStack, dictionary);
 }
 
-void processImmediateMode(Stack& stack, ReturnStack& returnStack, Dictionary& dictionary, const std::string& token)
-{
-    //std::cout << "Token: " << token << std::endl;
-    const auto& dictionaryIt = dictionary.find(token);
-    if (dictionaryIt == dictionary.end())
-    {
-        stringToStack(stack, returnStack, dictionary, token);
-        number(stack, returnStack, dictionary);
-    }
-    else
-    {
-        dictionaryIt->second(stack, returnStack, dictionary);
-    }
-}
-
 void executeImmediateTokens(Stack& stack, ReturnStack& returnStack, Dictionary& dictionary)
 {
     /*
