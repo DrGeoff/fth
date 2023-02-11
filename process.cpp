@@ -10,53 +10,17 @@
 #include <sstream>
 #include <cassert>
 
-struct NewCommandTokens
-{
-    std::string name;
-    std::vector<std::string> tokens;    
-
-    void add(const std::string& token)
-    {
-        if (name.empty())
-        {
-            name = token;
-        }
-        else
-        {
-            tokens.push_back(token);
-        }
-    }
-
-    /* //only used when debugging
-    void dump() const
-    {
-        std::cout << "CommandTokens. name=" << name << " tokens=";
-        for (const auto& token : tokens)
-        {
-            std::cout << " " << token;
-        }
-    }
-    */
-};
-
-void addNewCommandTokensToStack(const std::unique_ptr<NewCommandTokens>& pNewCommandTokens, Stack& stack, ReturnStack& returnStack, Dictionary& dictionary)
-{
-    stringToStack(stack, returnStack, dictionary, pNewCommandTokens->name);
-    for (const std::string& token : pNewCommandTokens->tokens|std::ranges::views::reverse)
-    {
-        stringToStack(stack, returnStack, dictionary, token);
-    }
-    stack.push_back(1+pNewCommandTokens->tokens.size()); 
-}
 
 void addNewCommandTokensToDictionary(Stack& stack, ReturnStack& returnStack, Dictionary& dictionary)
 {
+    //std::cout << "addNewCommandTokensToDictionary" << std::endl;
     bool characterMode{false};
     bool stringMode{false};
     std::string strToken{};
     std::vector<std::function<FthFunc>> newCommandFuncs;
 
     const int numTokens = stack.back()-1;
+    assert(numTokens > 0);
     stack.pop_back();
     for (int index = 0; index != numTokens; ++index)
     {
@@ -132,56 +96,28 @@ void addNewCommandTokensToDictionary(Stack& stack, ReturnStack& returnStack, Dic
     dictionary.emplace(name, implementation);
 }
 
-void addNewCommandTokensToDictionary(const std::unique_ptr<NewCommandTokens>& pNewCommandTokens, Stack& stack, ReturnStack& returnStack, Dictionary& dictionary)
-{
-    addNewCommandTokensToStack(pNewCommandTokens, stack, returnStack, dictionary);
-    addNewCommandTokensToDictionary(stack, returnStack, dictionary);
-}
-
 void executeImmediateTokens(Stack& stack, ReturnStack& returnStack, Dictionary& dictionary)
 {
     /*
     dumpDictionary(stack, returnStack, dictionary, std::cout); // TODO: REMOVE
     */
     const std::string name = stackToString(stack, returnStack, dictionary);   
+    //std::cout << "executeImmediateTokens adding new tokens to name=" << name << std::endl;
     addNewCommandTokensToDictionary(stack, returnStack, dictionary);
     // TODO: would be better if the name was at the top of the stack here rather than earlier
+    //dumpDictionary(stack, returnStack, dictionary, std::cout);
+    //std::cout << "executeImmediateTokens attempting to find name=" << name << std::endl;
     const auto& dictionaryIt = dictionary.find(name);
     assert(dictionaryIt!=dictionary.end());
     dictionaryIt->second(stack, returnStack, dictionary);
     dictionary.erase(dictionaryIt);
 }
 
-void executeImmediateTokens(std::unique_ptr<NewCommandTokens>& pImmediateTokens, Stack& stack, ReturnStack& returnStack, Dictionary& dictionary)
-{
-    if (!pImmediateTokens || pImmediateTokens->tokens.empty())
-    {
-        // Nothing to do.  Probably a bug somewhere so let's get noisy
-        throw std::runtime_error("executeImmediateTokens called with no tokens.  That seems a little fishy.");
-    }
-    /*
-    std::cout << "executeImmediateTokens. name=" << pImmediateTokens->name << " tokens=";
-    pImmediateTokens->dump();
-    std::cout << std::endl;            
-    dumpDictionary(stack, returnStack, dictionary, std::cout); // TODO: REMOVE
-    */
-
-    addNewCommandTokensToStack(pImmediateTokens, stack, returnStack, dictionary);
-    // TODO: need to get the nth token (i.e., the name) and duplicate it.  But cheat for now.
-    stringToStack(stack, returnStack, dictionary, pImmediateTokens->name);
-    executeImmediateTokens(stack, returnStack, dictionary);
-}
-
-// TODO.  Rewrite, put the command tokens onto the stack 
-// TODO. Use a state machine for the rewrite
-
 enum class ProcessState
 {
-    StartImmediateMode,
     ImmediateMode,
     CompileMode
 };
-
 
 std::ostream& operator << (std::ostream& os, const ProcessState& obj)
 {
@@ -192,7 +128,9 @@ std::ostream& operator << (std::ostream& os, const ProcessState& obj)
 void process(std::istream& iss, Stack& stack, ReturnStack& returnStack, Dictionary& dictionary)
 {
     static int immediateCounter{0};
-    ProcessState state{ProcessState::StartImmediateMode};
+    int tokenCounter{0};
+    ProcessState state{ProcessState::ImmediateMode};
+    std::string immediateName;
 
     std::string line;
     while (std::getline(iss, line))
@@ -200,48 +138,58 @@ void process(std::istream& iss, Stack& stack, ReturnStack& returnStack, Dictiona
         //std::cout << "Line: " << line << std::endl;
         std::istringstream issline(line);
         std::string token;
-        std::unique_ptr<NewCommandTokens> pNewCommandTokens{};
         while (std::getline(issline, token, ' '))
         {
             trim(token);
-            // std::cout << "State: " << state << " Parsing Token: " << token << std::endl;
+            //std::cout << "State: " << state << " Parsing Token: " << token << std::endl;
             if (token.empty())
             {
                 continue;
             }
-            if (token == ":") 
+            if (tokenCounter == 0 && token != ":" && state == ProcessState::ImmediateMode) 
             {
-                if (pNewCommandTokens && !pNewCommandTokens->tokens.empty())
+                immediateName = "immediate"+std::to_string(++immediateCounter);
+                //std::cout << "Putting name on stack as FTH string" << immediateName << std::endl;
+                stringToStack(stack, returnStack, dictionary, immediateName);
+            }
+            else if (token == ":") 
+            {
+                if (tokenCounter > 0)
                 {
-                    executeImmediateTokens(pNewCommandTokens, stack, returnStack, dictionary);
+                    stack.push_back(tokenCounter+1);
+                    stringToStack(stack, returnStack, dictionary, immediateName);
+                    //dotS(stack, returnStack,dictionary, std::cout);
+                    //dumpDictionary(stack, returnStack, dictionary, std::cout); // TODO: REMOVE
+                    executeImmediateTokens(stack, returnStack, dictionary);
+                    tokenCounter = 0;
                 }
-                pNewCommandTokens = std::make_unique<NewCommandTokens>();
                 state = ProcessState::CompileMode;
+                continue;
             }
             else if (token == ";") 
             { 
                 //dumpDictionary(stack, returnStack, dictionary, std::cout); // TODO: REMOVE
-                addNewCommandTokensToDictionary(pNewCommandTokens, stack, returnStack, dictionary);
+                stack.push_back(tokenCounter);
+                addNewCommandTokensToDictionary(stack, returnStack, dictionary);
+                tokenCounter = 0;
                 //dumpDictionary(stack, returnStack, dictionary, std::cout); // TODO: REMOVE
-                state = ProcessState::StartImmediateMode;
+                state = ProcessState::ImmediateMode;
+                continue;
             }
-            else
-            {
-                if (state == ProcessState::StartImmediateMode)
-                {
-                    pNewCommandTokens = std::make_unique<NewCommandTokens>();
-                    pNewCommandTokens->add("immediate"+std::to_string(++immediateCounter));
-                    state = ProcessState::ImmediateMode;
-                }
-                assert(pNewCommandTokens != nullptr);
-                pNewCommandTokens->add(token);
-            }
+            //std::cout << "Putting token=" << token << " on stack as FTH string" << std::endl;
+            stringToStack(stack, returnStack, dictionary, token);
+            ++tokenCounter;
         }
-        if (pNewCommandTokens && !pNewCommandTokens->tokens.empty() && state == ProcessState::ImmediateMode)
+        if (tokenCounter > 0)
         {
-            executeImmediateTokens(pNewCommandTokens, stack, returnStack, dictionary);
-            pNewCommandTokens.reset();
-            state = ProcessState::StartImmediateMode;
+            //std::cout << "Putting tokenCounter+1=" <<tokenCounter+1 << " on stack as int" << std::endl; 
+            stack.push_back(tokenCounter+1);
+            //std::cout << "Putting name (again) on stack as FTH string" << immediateName << std::endl;
+            stringToStack(stack, returnStack, dictionary, immediateName);
+            //dotS(stack, returnStack,dictionary, std::cout);
+            //dumpDictionary(stack, returnStack, dictionary, std::cout); // TODO: REMOVE
+            executeImmediateTokens(stack, returnStack, dictionary);
+            tokenCounter = 0;
         }
     }
 }

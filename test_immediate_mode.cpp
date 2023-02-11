@@ -9,21 +9,24 @@ namespace
 
 TEST(immediate_mode, addition)
 {
-    const std::string program = R"(40 2 + .)";
+    //const std::string program = R"(40 2 + .)";   // Normal Forth
+    const std::string program = R"(. + 40 2)";     // FTH
     const std::string output = fth::harness(program);
     EXPECT_EQ(output,"42");
 }
 
 TEST(immediate_mode, twostar)
 {
-    const std::string program = R"(40 2 + EMIT 42 EMIT CR)";
+    //const std::string program = R"(40 2 + EMIT 42 EMIT CR)";// Normal Forth
+    const std::string program = R"(CR EMIT 42 EMIT + 2 40)";  // FTH
     const std::string output = fth::harness(program);
     EXPECT_EQ(output,"**\n");
 }
 
 TEST(immediate_mode, stringquote)
 {
-    const std::string program = R"(." one two "
+    // Reversed from normal Forth
+    const std::string program = R"(" two one ."
 .S
 )";
     const std::string output = fth::harness(program);
@@ -32,7 +35,8 @@ TEST(immediate_mode, stringquote)
 
 TEST(immediate_mode, charword)
 {
-    const std::string program = R"([CHAR] hello
+    // Reversed from normal Forth
+    const std::string program = R"(hello [CHAR]
 .S
 )";
     const std::string output = fth::harness(program);

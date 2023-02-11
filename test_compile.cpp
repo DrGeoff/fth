@@ -19,7 +19,12 @@ fortytwo
 
 TEST(compile_mode, createword)
 {
+    /*
     const std::string program = R"([CHAR] fortytwo [CHAR] 42 2 CREATEWORD
+fortytwo
+.)";
+*/
+    const std::string program = R"(CREATEWORD 2 42 [CHAR] fortytwo [CHAR] 
 fortytwo
 .)";
     const std::string output = fth::harness(program);
