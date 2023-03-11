@@ -39,7 +39,7 @@ void Dictionary::populateDictionary(std::ostream& os)
 
 void addressOf(Stack& stack, ReturnStack& returnStack, Dictionary& dictionary)
 {
-    const auto funcName = stackToString(stack, returnStack, dictionary);
+    const auto funcName = stackToString(stack);
     
     const auto& dictionaryIt = dictionary.find(funcName);
     if (dictionaryIt == dictionary.end())
@@ -80,6 +80,6 @@ void wordOf(Stack& stack, ReturnStack& returnStack, Dictionary& dictionary)
     {
         throw std::runtime_error("Tried to find word of " + std::to_string(funcAsInteger));
     }
-    stringToStack(stack, returnStack, dictionary, it->first);
+    stringToStack(stack, it->first);
 }
 

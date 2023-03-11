@@ -19,10 +19,10 @@ TEST(dict, roundtripword)
 
     // TODO rewrite this test in Fth
     const std::string testword{"EMIT"};
-    stringToStack(stack, returnStack, dictionary, testword);
+    stringToStack(stack, testword);
     addressOf(stack, returnStack, dictionary);
     wordOf(stack, returnStack, dictionary);
-    const std::string str = stackToString(stack, returnStack, dictionary);
+    const std::string str = stackToString(stack);
     EXPECT_EQ(str, testword);
 }
 
