@@ -4,8 +4,8 @@
 #include <string>
 
 // Push a std::string into a Fth string on the stack
-void stringToStack(Stack& stack, ReturnStack& returnStack, Dictionary& dictionary, const std::string& str);
+void stringToStack(std::vector<int>& aStack, const std::string& str);
 
 // Pop a Fth string from the stack and convert to a std::string
-std::string stackToString(Stack& stack, ReturnStack& returnStack, Dictionary& dictionary);
+std::string stackToString(std::vector<int>& aStack);
 
